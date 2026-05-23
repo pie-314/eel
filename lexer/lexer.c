@@ -2,10 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 
-// TODO
-// * Add comparison operators support
-// * Add loops
-// * Add lex
 typedef enum {
   TOKEN_ILLEGAL,
   TOKEN_EOF,
@@ -192,7 +188,7 @@ Token next_token(Lexer *l) {
   }
 
   case '=':
-    if (l->next_position == '=') {
+    if (peek_char(l) == '=') {
       tok.type = TOKEN_EQ;
       strcpy(tok.literal, "==");
     } else {
@@ -203,7 +199,7 @@ Token next_token(Lexer *l) {
     break;
 
   case '!':
-    if (l->next_position == '=') {
+    if (peek_char(l) == '=') {
       tok.type = TOKEN_NOTEQ;
       strcpy(tok.literal, "!=");
       read_char(l);
@@ -211,7 +207,7 @@ Token next_token(Lexer *l) {
     }
 
   case '>':
-    if (l->next_position == '=') {
+    if (peek_char(l) == '=') {
       tok.type = TOKEN_GTE;
       strcpy(tok.literal, ">=");
 
@@ -223,7 +219,7 @@ Token next_token(Lexer *l) {
     break;
 
   case '<':
-    if (l->next_position == '=') {
+    if (peek_char(l) == '=') {
       tok.type = TOKEN_LTE;
       strcpy(tok.literal, "<=");
     } else {
