@@ -6,30 +6,72 @@ typedef enum {
   TOKEN_ILLEGAL,
   TOKEN_EOF,
 
+  // Keywords
   TOKEN_PROBE,
   TOKEN_IDENTIFIER,
 
+  // brace
   TOKEN_LBRACE,
   TOKEN_RBRACE,
 
+  // parenthesis
   TOKEN_LPAREN,
   TOKEN_RPAREN,
 
+  // Literals
   TOKEN_STRING,
+  TOKEN_NUMBER,
 
-  TOKEN_COUNT
+  // signs
+  TOKEN_ADD,
+  TOKEN_SUBTRACT,
+  TOKEN_ASSIGN,
+
+  // comparison
+  TOKEN_GT,    // >
+  TOKEN_LT,    // <
+  TOKEN_EQ,    // ==
+  TOKEN_NOTEQ, // !=
+  TOKEN_GTE,   // >=
+  TOKEN_LTE,   // <=
+  TOKEN_SEMICOLON,
+  TOKEN_COMMA,
+
+  // conditinals
+  TOKEN_IF,
+  TOKEN_ELIF,
+  TOKEN_ELSE,
+  TOKEN_COUNT,
+  // Loop
+  TOKEN_REPEAT,
+
 } TokenType;
 
-const char *token_type_to_string[TOKEN_COUNT] = {
-    [TOKEN_ILLEGAL] = "ILLEGAL", [TOKEN_EOF] = "EOF",
+const char *token_type_to_string[TOKEN_COUNT] = {[TOKEN_ILLEGAL] = "ILLEGAL",
+                                                 [TOKEN_EOF] = "EOF",
+                                                 [TOKEN_PROBE] = "PROBE",
+                                                 [TOKEN_IDENTIFIER] =
+                                                     "IDENTIFIER",
+                                                 // brances
+                                                 [TOKEN_LBRACE] = "{",
+                                                 [TOKEN_RBRACE] = "}",
 
-    [TOKEN_PROBE] = "PROBE",     [TOKEN_IDENTIFIER] = "IDENTIFIER",
+                                                 // parenthesis
+                                                 [TOKEN_LPAREN] = "(",
+                                                 [TOKEN_RPAREN] = ")",
+                                                 [TOKEN_STRING] = "STRING",
+                                                 [TOKEN_NUMBER] = "NUMBER",
+                                                 [TOKEN_ADD] = "+",
+                                                 [TOKEN_SUBTRACT] = "-",
+                                                 [TOKEN_GT] = ">",
+                                                 [TOKEN_LT] = "<",
+                                                 [TOKEN_EQ] = "==",
+                                                 [TOKEN_NOTEQ] = "!=",
+                                                 [TOKEN_GTE] = ">=",
+                                                 [TOKEN_LTE] = "<=",
+                                                 [TOKEN_SEMICOLON] = ";",
 
-    [TOKEN_LBRACE] = "{",        [TOKEN_RBRACE] = "}",
-
-    [TOKEN_LPAREN] = "(",        [TOKEN_RPAREN] = ")",
-
-    [TOKEN_STRING] = "STRING"};
+                                                 [TOKEN_ASSIGN] = "="};
 
 typedef struct {
   TokenType type;
@@ -44,6 +86,7 @@ typedef struct {
 
 char *source = "probe sys_execve {\n"
                "    print(\"exec called\")\n"
+               "    x = 10\n"
                "}";
 
 void read_char(Lexer *l) {
@@ -123,6 +166,18 @@ Token next_token(Lexer *l) {
     break;
 
   default:
+    if (isdigit(l->ch)) {
+      int j = 0;
+
+      while (isalnum(l->ch)) {
+        tok.literal[j++] = l->ch;
+        read_char(l);
+      }
+      tok.literal[j] = '\0';
+      tok.type = TOKEN_NUMBER;
+      return tok;
+    }
+
     if (isalpha(l->ch) || l->ch == '_') {
       int i = 0;
 
