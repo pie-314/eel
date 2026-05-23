@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 
+// TODO
+// * Add comparison operators support
+// * Add loops
+// * Add lex
 typedef enum {
   TOKEN_ILLEGAL,
   TOKEN_EOF,
@@ -10,7 +14,7 @@ typedef enum {
   TOKEN_PROBE,
   TOKEN_IDENTIFIER,
 
-  // brace
+  // braces
   TOKEN_LBRACE,
   TOKEN_RBRACE,
 
@@ -22,9 +26,14 @@ typedef enum {
   TOKEN_STRING,
   TOKEN_NUMBER,
 
-  // signs
+  // arthmetic
   TOKEN_ADD,
   TOKEN_SUBTRACT,
+  TOKEN_MULTI,
+  TOKEN_DIV,
+  TOKEN_MOD,
+
+  // assignment
   TOKEN_ASSIGN,
 
   // comparison
@@ -35,16 +44,16 @@ typedef enum {
   TOKEN_GTE,   // >=
   TOKEN_LTE,   // <=
   TOKEN_SEMICOLON,
-  TOKEN_COMMA,
 
   // conditinals
   TOKEN_IF,
   TOKEN_ELIF,
   TOKEN_ELSE,
-  TOKEN_COUNT,
+
   // Loop
   TOKEN_REPEAT,
 
+  TOKEN_COUNT
 } TokenType;
 
 const char *token_type_to_string[TOKEN_COUNT] = {[TOKEN_ILLEGAL] = "ILLEGAL",
@@ -59,10 +68,19 @@ const char *token_type_to_string[TOKEN_COUNT] = {[TOKEN_ILLEGAL] = "ILLEGAL",
                                                  // parenthesis
                                                  [TOKEN_LPAREN] = "(",
                                                  [TOKEN_RPAREN] = ")",
+
+                                                 // literals
                                                  [TOKEN_STRING] = "STRING",
                                                  [TOKEN_NUMBER] = "NUMBER",
+
+                                                 // arthmetic
                                                  [TOKEN_ADD] = "+",
                                                  [TOKEN_SUBTRACT] = "-",
+                                                 [TOKEN_MULTI] = "*",
+                                                 [TOKEN_DIV] = "/",
+                                                 [TOKEN_MOD] = "%",
+
+                                                 // comparison
                                                  [TOKEN_GT] = ">",
                                                  [TOKEN_LT] = "<",
                                                  [TOKEN_EQ] = "==",
@@ -70,6 +88,14 @@ const char *token_type_to_string[TOKEN_COUNT] = {[TOKEN_ILLEGAL] = "ILLEGAL",
                                                  [TOKEN_GTE] = ">=",
                                                  [TOKEN_LTE] = "<=",
                                                  [TOKEN_SEMICOLON] = ";",
+
+                                                 // conditinals
+                                                 [TOKEN_IF] = "IF",
+                                                 [TOKEN_ELIF] = "ELIF",
+                                                 [TOKEN_ELSE] = "ELSE",
+
+                                                 // Loop
+                                                 [TOKEN_REPEAT] = "REPEAT",
 
                                                  [TOKEN_ASSIGN] = "="};
 
@@ -81,6 +107,7 @@ typedef struct {
 typedef struct {
   char *input;
   int position;
+  int next_position;
   char ch;
 } Lexer;
 
@@ -95,8 +122,8 @@ void read_char(Lexer *l) {
   } else {
     l->ch = l->input[l->position];
   }
-
   l->position++;
+  l->next_position = l->position++;
 }
 
 void init_lexer(Lexer *l, char *input) {
@@ -107,11 +134,14 @@ void init_lexer(Lexer *l, char *input) {
   read_char(l);
 }
 
+// skip whitespaces since they don't add any value until it's a string
 void skip_whitespace(Lexer *l) {
   while (isspace(l->ch)) {
     read_char(l);
   }
 }
+
+char peek_char(Lexer *l) { return l->input[l->position]; }
 
 Token next_token(Lexer *l) {
   Token tok;
