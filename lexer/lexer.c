@@ -113,6 +113,7 @@ typedef struct {
 
 char *source = "probe sys_execve {\n"
                "    print(\"exec called\")\n"
+               "    if ( x > 10)\n"
                "    x = 10\n"
                "}";
 
@@ -123,7 +124,7 @@ void read_char(Lexer *l) {
     l->ch = l->input[l->position];
   }
   l->position++;
-  l->next_position = l->position++;
+  l->next_position = l->position + 1;
 }
 
 void init_lexer(Lexer *l, char *input) {
@@ -189,6 +190,48 @@ Token next_token(Lexer *l) {
     read_char(l);
     break;
   }
+
+  case '=':
+    if (l->next_position == '=') {
+      tok.type = TOKEN_EQ;
+      strcpy(tok.literal, "==");
+    } else {
+      tok.type = TOKEN_ASSIGN;
+      strcpy(tok.literal, "=");
+    }
+    read_char(l);
+    break;
+
+  case '!':
+    if (l->next_position == '=') {
+      tok.type = TOKEN_NOTEQ;
+      strcpy(tok.literal, "!=");
+      read_char(l);
+      break;
+    }
+
+  case '>':
+    if (l->next_position == '=') {
+      tok.type = TOKEN_GTE;
+      strcpy(tok.literal, ">=");
+
+    } else {
+      tok.type = TOKEN_GT;
+      strcpy(tok.literal, ">");
+    }
+    read_char(l);
+    break;
+
+  case '<':
+    if (l->next_position == '=') {
+      tok.type = TOKEN_LTE;
+      strcpy(tok.literal, "<=");
+    } else {
+      tok.type = TOKEN_LT;
+      strcpy(tok.literal, "<");
+    }
+    read_char(l);
+    break;
 
   case 0:
     tok.type = TOKEN_EOF;
