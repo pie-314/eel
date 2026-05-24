@@ -109,8 +109,28 @@ typedef struct {
 
 char *source = "probe sys_execve {\n"
                "    print(\"exec called\")\n"
-               "    if ( x > 10)\n"
-               "    x = 10\n"
+               "\n"
+               "    pid = 1337\n"
+               "    counter = counter + 1\n"
+               "\n"
+               "    if (pid >= 1000) {\n"
+               "        print(\"large pid\")\n"
+               "    }\n"
+               "\n"
+               "    if (counter == 10) {\n"
+               "        print(\"counter reached\")\n"
+               "    }\n"
+               "\n"
+               "    if (pid != 1) {\n"
+               "        print(\"not init process\")\n"
+               "    }\n"
+               "\n"
+               "    total = (10 + 20) * 5\n"
+               "    mod = total % 3\n"
+               "\n"
+               "    repeat 3 {\n"
+               "        print(\"looping\")\n"
+               "    }\n"
                "}";
 
 void read_char(Lexer *l) {
@@ -136,6 +156,24 @@ void skip_whitespace(Lexer *l) {
   while (isspace(l->ch)) {
     read_char(l);
   }
+}
+TokenType lookup_identifier(char *ident) {
+  if (strcmp(ident, "probe") == 0)
+    return TOKEN_PROBE;
+
+  if (strcmp(ident, "if") == 0)
+    return TOKEN_IF;
+
+  if (strcmp(ident, "elif") == 0)
+    return TOKEN_ELIF;
+
+  if (strcmp(ident, "else") == 0)
+    return TOKEN_ELSE;
+
+  if (strcmp(ident, "repeat") == 0)
+    return TOKEN_REPEAT;
+
+  return TOKEN_IDENTIFIER;
 }
 
 char peek_char(Lexer *l) { return l->input[l->position]; }
@@ -170,6 +208,12 @@ Token next_token(Lexer *l) {
     read_char(l);
     break;
 
+  case ';':
+    tok.type = TOKEN_SEMICOLON;
+    strcpy(tok.literal, ";");
+    read_char(l);
+    break;
+
   case '"': {
     read_char(l);
 
@@ -186,9 +230,39 @@ Token next_token(Lexer *l) {
     read_char(l);
     break;
   }
+  case '+':
+    read_char(l);
+    tok.type = TOKEN_ADD;
+    strcpy(tok.literal, "+");
+    break;
+
+  case '-':
+    read_char(l);
+    tok.type = TOKEN_SUBTRACT;
+    strcpy(tok.literal, "-");
+    break;
+
+  case '*':
+    read_char(l);
+    tok.type = TOKEN_MULTI;
+    strcpy(tok.literal, "*");
+    break;
+
+  case '/':
+    read_char(l);
+    tok.type = TOKEN_DIV;
+    strcpy(tok.literal, "/");
+    break;
+
+  case '%':
+    read_char(l);
+    tok.type = TOKEN_MOD;
+    strcpy(tok.literal, "%");
+    break;
 
   case '=':
     if (peek_char(l) == '=') {
+      read_char(l);
       tok.type = TOKEN_EQ;
       strcpy(tok.literal, "==");
     } else {
@@ -200,6 +274,7 @@ Token next_token(Lexer *l) {
 
   case '!':
     if (peek_char(l) == '=') {
+      read_char(l);
       tok.type = TOKEN_NOTEQ;
       strcpy(tok.literal, "!=");
       read_char(l);
@@ -208,6 +283,7 @@ Token next_token(Lexer *l) {
 
   case '>':
     if (peek_char(l) == '=') {
+      read_char(l);
       tok.type = TOKEN_GTE;
       strcpy(tok.literal, ">=");
 
@@ -220,6 +296,7 @@ Token next_token(Lexer *l) {
 
   case '<':
     if (peek_char(l) == '=') {
+      read_char(l);
       tok.type = TOKEN_LTE;
       strcpy(tok.literal, "<=");
     } else {
@@ -256,12 +333,7 @@ Token next_token(Lexer *l) {
       }
 
       tok.literal[i] = '\0';
-
-      if (strcmp(tok.literal, "probe") == 0) {
-        tok.type = TOKEN_PROBE;
-      } else {
-        tok.type = TOKEN_IDENTIFIER;
-      }
+      tok.type = lookup_identifier(tok.literal);
 
       return tok;
     }
