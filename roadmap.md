@@ -1,7 +1,5 @@
 # EEL (eBPF Language) Development Roadmap
 
-This document outlines the development phases for EEL, a standalone DSL compiler for eBPF. The goal is to provide a clear path from source code to kernel-ready eBPF bytecode.
-
 ## Phase 1: Lexical Analysis (Current)
 The foundation of the compiler, responsible for converting raw source code into a stream of meaningful tokens.
 
@@ -9,7 +7,7 @@ The foundation of the compiler, responsible for converting raw source code into 
 - [x] Basic Lexer implementation in C.
 - [ ] Support for all planned keywords:
     - [x] `probe`, `if`, `elif`, `else`, `repeat`.
-    - [ ] `map`, `int`, `string` (Type declarations).
+    - [x] `map`, `int`, `string` (Type declarations).
 - [x] Literal parsing (Strings, Numbers).
 - [x] Arithmetic and Comparison operators.
 - [ ] Error handling for illegal characters and malformed tokens.
