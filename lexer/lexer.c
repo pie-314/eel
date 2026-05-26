@@ -49,51 +49,61 @@ typedef enum {
   // Loop
   TOKEN_REPEAT,
 
+  // types
+  TOKEN_INT,
+  TOKEN_STRING_TYPE,
+  TOKEN_MAP,
+
   TOKEN_COUNT
 } TokenType;
 
-const char *token_type_to_string[TOKEN_COUNT] = {[TOKEN_ILLEGAL] = "ILLEGAL",
-                                                 [TOKEN_EOF] = "EOF",
-                                                 [TOKEN_PROBE] = "PROBE",
-                                                 [TOKEN_IDENTIFIER] =
-                                                     "IDENTIFIER",
-                                                 // brances
-                                                 [TOKEN_LBRACE] = "{",
-                                                 [TOKEN_RBRACE] = "}",
+const char *token_type_to_string[TOKEN_COUNT] = {
+    [TOKEN_ILLEGAL] = "ILLEGAL",
+    [TOKEN_EOF] = "EOF",
+    [TOKEN_PROBE] = "PROBE",
+    [TOKEN_IDENTIFIER] = "IDENTIFIER",
+    // brances
+    [TOKEN_LBRACE] = "{",
+    [TOKEN_RBRACE] = "}",
 
-                                                 // parenthesis
-                                                 [TOKEN_LPAREN] = "(",
-                                                 [TOKEN_RPAREN] = ")",
+    // parenthesis
+    [TOKEN_LPAREN] = "(",
+    [TOKEN_RPAREN] = ")",
 
-                                                 // literals
-                                                 [TOKEN_STRING] = "STRING",
-                                                 [TOKEN_NUMBER] = "NUMBER",
+    // literals
+    [TOKEN_STRING] = "STRING",
+    [TOKEN_NUMBER] = "NUMBER",
 
-                                                 // arthmetic
-                                                 [TOKEN_ADD] = "+",
-                                                 [TOKEN_SUBTRACT] = "-",
-                                                 [TOKEN_MULTI] = "*",
-                                                 [TOKEN_DIV] = "/",
-                                                 [TOKEN_MOD] = "%",
+    // arthmetic
+    [TOKEN_ADD] = "+",
+    [TOKEN_SUBTRACT] = "-",
+    [TOKEN_MULTI] = "*",
+    [TOKEN_DIV] = "/",
+    [TOKEN_MOD] = "%",
 
-                                                 // comparison
-                                                 [TOKEN_GT] = ">",
-                                                 [TOKEN_LT] = "<",
-                                                 [TOKEN_EQ] = "==",
-                                                 [TOKEN_NOTEQ] = "!=",
-                                                 [TOKEN_GTE] = ">=",
-                                                 [TOKEN_LTE] = "<=",
-                                                 [TOKEN_SEMICOLON] = ";",
+    // comparison
+    [TOKEN_GT] = ">",
+    [TOKEN_LT] = "<",
+    [TOKEN_EQ] = "==",
+    [TOKEN_NOTEQ] = "!=",
+    [TOKEN_GTE] = ">=",
+    [TOKEN_LTE] = "<=",
+    [TOKEN_SEMICOLON] = ";",
 
-                                                 // conditinals
-                                                 [TOKEN_IF] = "IF",
-                                                 [TOKEN_ELIF] = "ELIF",
-                                                 [TOKEN_ELSE] = "ELSE",
+    // conditinals
+    [TOKEN_IF] = "IF",
+    [TOKEN_ELIF] = "ELIF",
+    [TOKEN_ELSE] = "ELSE",
 
-                                                 // Loop
-                                                 [TOKEN_REPEAT] = "REPEAT",
+    // Loop
+    [TOKEN_REPEAT] = "REPEAT",
 
-                                                 [TOKEN_ASSIGN] = "="};
+    // types
+    [TOKEN_INT] = "INT",
+    [TOKEN_STRING_TYPE] = "STR_TYPE",
+    [TOKEN_MAP] = "MAP",
+
+    [TOKEN_ASSIGN] = "="};
 
 typedef struct {
   TokenType type;
@@ -172,6 +182,14 @@ TokenType lookup_identifier(char *ident) {
 
   if (strcmp(ident, "repeat") == 0)
     return TOKEN_REPEAT;
+  if (strcmp(ident, "int") == 0)
+    return TOKEN_INT;
+
+  if (strcmp(ident, "string") == 0)
+    return TOKEN_STRING_TYPE;
+
+  if (strcmp(ident, "map") == 0)
+    return TOKEN_MAP;
 
   return TOKEN_IDENTIFIER;
 }
@@ -278,8 +296,12 @@ Token next_token(Lexer *l) {
       tok.type = TOKEN_NOTEQ;
       strcpy(tok.literal, "!=");
       read_char(l);
-      break;
+    } else {
+      tok.type = TOKEN_ILLEGAL;
+      strcpy(tok.literal, "!");
+      read_char(l);
     }
+    break;
 
   case '>':
     if (peek_char(l) == '=') {
@@ -315,7 +337,7 @@ Token next_token(Lexer *l) {
     if (isdigit(l->ch)) {
       int j = 0;
 
-      while (isalnum(l->ch)) {
+      while (isdigit(l->ch)) {
         tok.literal[j++] = l->ch;
         read_char(l);
       }
