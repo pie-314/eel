@@ -123,6 +123,7 @@ char *source = "probe sys_execve {\n"
                "    pid = 1337\n"
                "    counter = counter + 1\n"
                "\n"
+               "// modi\n"
                "    if (pid >= 1000) {\n"
                "        print(\"large pid\")\n"
                "    }\n"
@@ -131,6 +132,8 @@ char *source = "probe sys_execve {\n"
                "        print(\"counter reached\")\n"
                "    }\n"
                "\n"
+               "/* checking for \n"
+               "multi-line comment\n"
                "    if (pid != 1) {\n"
                "        print(\"not init process\")\n"
                "    }\n"
@@ -196,9 +199,35 @@ TokenType lookup_identifier(char *ident) {
 
 char peek_char(Lexer *l) { return l->input[l->position]; }
 
+void skip_comments(Lexer *l) {
+  // single-line
+  if (l->ch == '/' && peek_char(l) == '/') {
+    while (l->ch != '\n' && l->ch != 0) {
+      read_char(l);
+    }
+  }
+
+  // multi-line
+  if (l->ch == '/' && peek_char(l) == '*') {
+    read_char(l);
+    read_char(l);
+
+    while (!(l->ch == '*' && peek_char(l) == '/') && l->ch != 0) {
+      read_char(l);
+    }
+
+    if (l->ch != 0) {
+      read_char(l);
+      read_char(l);
+    }
+  }
+}
+
 Token next_token(Lexer *l) {
   Token tok;
 
+  skip_whitespace(l);
+  skip_comments(l);
   skip_whitespace(l);
 
   switch (l->ch) {
