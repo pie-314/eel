@@ -133,7 +133,7 @@ char *source = "probe sys_execve {\n"
                "    }\n"
                "\n"
                "/* checking for \n"
-               "multi-line comment\n"
+               "multi-line comment*/ \n"
                "    if (pid != 1) {\n"
                "        print(\"not init process\")\n"
                "    }\n"
@@ -226,9 +226,17 @@ void skip_comments(Lexer *l) {
 Token next_token(Lexer *l) {
   Token tok;
 
-  skip_whitespace(l);
-  skip_comments(l);
-  skip_whitespace(l);
+  while (1) {
+    skip_whitespace(l);
+
+    if (l->ch == '/' && peek_char(l) == '/') {
+      skip_comments(l);
+    } else if (l->ch == '/' && peek_char(l) == '*') {
+      skip_comments(l);
+    } else {
+      break;
+    }
+  }
 
   switch (l->ch) {
   case '{':
