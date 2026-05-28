@@ -115,6 +115,8 @@ typedef struct {
   int position;
   int next_position;
   char ch;
+  int line;
+  int column;
 } Lexer;
 
 char *source = "probe sys_execve {\n"
@@ -154,14 +156,29 @@ void read_char(Lexer *l) {
   }
   l->position++;
   l->next_position = l->position + 1;
+
+  // track next_position
+  if (l->ch == '\n') {
+    l->line++;
+    l->column = 0;
+  } else {
+    l->column++;
+  }
 }
 
 void init_lexer(Lexer *l, char *input) {
   l->input = input;
   l->position = 0;
   l->ch = 0;
+  l->line = 1;
+  l->column = 0;
 
   read_char(l);
+}
+
+void report_error(Lexer *l, const char *msg) {
+  fprintf(stderr, "Lexer Error at line %d, col %d: %s\n", l->line, l->column,
+          msg);
 }
 
 // skip whitespaces since they don't add any value until it's a string
@@ -219,6 +236,8 @@ void skip_comments(Lexer *l) {
     if (l->ch != 0) {
       read_char(l);
       read_char(l);
+    } else {
+      report_error(l, "Unterminated multi-line comment");
     }
   }
 }
@@ -277,6 +296,12 @@ Token next_token(Lexer *l) {
     while (l->ch != '"' && l->ch != 0) {
       tok.literal[i++] = l->ch;
       read_char(l);
+    }
+
+    if (l->ch == 0) {
+      report_error(l, "Unterminated string literal");
+      tok.type = TOKEN_ILLEGAL;
+      return tok;
     }
 
     tok.literal[i] = '\0';
@@ -400,6 +425,8 @@ Token next_token(Lexer *l) {
     tok.type = TOKEN_ILLEGAL;
     tok.literal[0] = l->ch;
     tok.literal[1] = '\0';
+
+    report_error(l, "Illegal character found");
 
     read_char(l);
   }

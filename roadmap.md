@@ -5,12 +5,12 @@ The foundation of the compiler, responsible for converting raw source code into 
 
 - [x] Define core token types (Keywords, Literals, Operators, Delimiters).
 - [x] Basic Lexer implementation in C.
-- [ ] Support for all planned keywords:
+- [x] Support for all planned keywords:
     - [x] `probe`, `if`, `elif`, `else`, `repeat`.
     - [x] `map`, `int`, `string` (Type declarations).
 - [x] Literal parsing (Strings, Numbers).
 - [x] Arithmetic and Comparison operators.
-- [ ] Error handling for illegal characters and malformed tokens.
+- [x] Error handling for illegal characters and malformed tokens.
 - [ ] Unit tests for the Lexer.
 
 ## Phase 2: Syntax Analysis (Parser)
