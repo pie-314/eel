@@ -1,61 +1,7 @@
+#include "lexer.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-
-typedef enum {
-  TOKEN_ILLEGAL,
-  TOKEN_EOF,
-
-  // Keywords
-  TOKEN_PROBE,
-  TOKEN_IDENTIFIER,
-
-  // braces
-  TOKEN_LBRACE,
-  TOKEN_RBRACE,
-
-  // parenthesis
-  TOKEN_LPAREN,
-  TOKEN_RPAREN,
-
-  // Literals
-  TOKEN_STRING,
-  TOKEN_NUMBER,
-
-  // arthmetic
-  TOKEN_ADD,
-  TOKEN_SUBTRACT,
-  TOKEN_MULTI,
-  TOKEN_DIV,
-  TOKEN_MOD,
-
-  // assignment
-  TOKEN_ASSIGN,
-
-  // comparison
-  TOKEN_GT,    // >
-  TOKEN_LT,    // <
-  TOKEN_EQ,    // ==
-  TOKEN_NOTEQ, // !=
-  TOKEN_GTE,   // >=
-  TOKEN_LTE,   // <=
-  TOKEN_SEMICOLON,
-
-  // conditinals
-  TOKEN_IF,
-  TOKEN_ELIF,
-  TOKEN_ELSE,
-
-  // Loop
-  TOKEN_REPEAT,
-
-  // types
-  TOKEN_INT,
-  TOKEN_STRING_TYPE,
-  TOKEN_MAP,
-
-  TOKEN_COUNT
-} TokenType;
 
 const char *token_type_to_string[TOKEN_COUNT] = {
     [TOKEN_ILLEGAL] = "ILLEGAL",
@@ -105,49 +51,35 @@ const char *token_type_to_string[TOKEN_COUNT] = {
 
     [TOKEN_ASSIGN] = "="};
 
-typedef struct {
-  TokenType type;
-  char literal[256];
-} Token;
-
-typedef struct {
-  char *input;
-  int position;
-  int next_position;
-  char ch;
-  int line;
-  int column;
-} Lexer;
-
-char *source = "probe sys_execve {\n"
-               "    print(\"exec called\")\n"
-               "\n"
-               "    pid = 1337\n"
-               "    counter = counter + 1\n"
-               "\n"
-               "// modi\n"
-               "    if (pid >= 1000) {\n"
-               "        print(\"large pid\")\n"
-               "    }\n"
-               "\n"
-               "    if (counter == 10) {\n"
-               "        print(\"counter reached\")\n"
-               "    }\n"
-               "\n"
-               "/* checking for \n"
-               "multi-line comment*/ \n"
-               "    if (pid != 1) {\n"
-               "        print(\"not init process\")\n"
-               "    }\n"
-               "\n"
-               "    total = (10 + 20) * 5\n"
-               "    mod = total % 3\n"
-               "\n"
-               "    repeat 3 {\n"
-               "        print(\"looping\")\n"
-               "    }\n"
-               "}";
-
+// char *source = "probe sys_execve {\n"
+//                "    print(\"exec called\")\n"
+//                "\n"
+//                "    pid = 1337\n"
+//                "    counter = counter + 1\n"
+//                "\n"
+//                "// modi\n"
+//                "    if (pid >= 1000) {\n"
+//                "        print(\"large pid\")\n"
+//                "    }\n"
+//                "\n"
+//                "    if (counter == 10) {\n"
+//                "        print(\"counter reached\")\n"
+//                "    }\n"
+//                "\n"
+//                "/* checking for \n"
+//                "multi-line comment*/ \n"
+//                "    if (pid != 1) {\n"
+//                "        print(\"not init process\")\n"
+//                "    }\n"
+//                "\n"
+//                "    total = (10 + 20) * 5\n"
+//                "    mod = total % 3\n"
+//                "\n"
+//                "    repeat 3 {\n"
+//                "        print(\"looping\")\n"
+//                "    }\n"
+//                "}";
+//
 void read_char(Lexer *l) {
   if (l->input[l->position] == '\0') {
     l->ch = 0;
@@ -434,20 +366,20 @@ Token next_token(Lexer *l) {
   return tok;
 }
 
-int main() {
-  Lexer lexer;
-
-  init_lexer(&lexer, source);
-
-  Token tok;
-
-  do {
-    tok = next_token(&lexer);
-
-    printf("Type: %-12s Literal: %s\n", token_type_to_string[tok.type],
-           tok.literal);
-
-  } while (tok.type != TOKEN_EOF);
-
-  return 0;
-}
+// int main() {
+//   Lexer lexer;
+//
+//   init_lexer(&lexer, source);
+//
+//   Token tok;
+//
+//   do {
+//     tok = next_token(&lexer);
+//
+//     printf("Type: %-12s Literal: %s\n", token_type_to_string[tok.type],
+//            tok.literal);
+//
+//   } while (tok.type != TOKEN_EOF);
+//
+//   return 0;
+// }
