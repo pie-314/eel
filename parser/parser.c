@@ -1,39 +1,26 @@
-#include "../lexer/lexer.h"
+#include "parser.h"
 
-typedef enum {
-  NODE_PROGRAM,
+void parser_init(Parser *p, Lexer *l) {
+  p->lexer = l;
+  p->cur_token = next_token(l);
+  p->peek_token = next_token(l);
+}
 
-  // literals
-  NODE_IDENT,
-  NODE_NUMBER,
-  NODE_STRING,
+void next_token_parser(Parser *p) {
+  p->cur_token = p->peek_token;
+  p->peek_token = next_token(p->lexer);
+}
 
-  // expressions
-  NODE_ASSIGN,
+bool cur_token_is(Parser *p, TokenType t) {
+  if (p->cur_token.type == t) {
+    return true;
+  }
+  return false;
+}
 
-  NODE_ADD,
-  NODE_SUB,
-  NODE_MUL,
-  NODE_DIV,
-  NODE_MOD,
-
-  NODE_EQ,
-  NODE_NEQ,
-  NODE_GT,
-  NODE_LT,
-  NODE_GTE,
-  NODE_LTE,
-
-  // statements
-  NODE_EXPR_STMT,
-  NODE_BLOCK,
-
-  NODE_IF,
-  NODE_REPEAT,
-
-  // eel
-  NODE_PROBE,
-
-  // function call
-  NODE_CALL
-} NodeType;
+bool peek_token_is(Parser *p, TokenType t) {
+  if (p->peek_token.type == t) {
+    return true;
+  }
+  return false;
+}
