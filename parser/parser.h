@@ -1,5 +1,6 @@
 #include "../lexer/lexer.h"
 #include <stdbool.h>
+#include <stdlib.h>
 typedef struct ASTNode ASTNode;
 
 typedef enum {

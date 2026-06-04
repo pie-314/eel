@@ -51,35 +51,35 @@ const char *token_type_to_string[TOKEN_COUNT] = {
 
     [TOKEN_ASSIGN] = "="};
 
-// char *source = "probe sys_execve {\n"
-//                "    print(\"exec called\")\n"
-//                "\n"
-//                "    pid = 1337\n"
-//                "    counter = counter + 1\n"
-//                "\n"
-//                "// modi\n"
-//                "    if (pid >= 1000) {\n"
-//                "        print(\"large pid\")\n"
-//                "    }\n"
-//                "\n"
-//                "    if (counter == 10) {\n"
-//                "        print(\"counter reached\")\n"
-//                "    }\n"
-//                "\n"
-//                "/* checking for \n"
-//                "multi-line comment*/ \n"
-//                "    if (pid != 1) {\n"
-//                "        print(\"not init process\")\n"
-//                "    }\n"
-//                "\n"
-//                "    total = (10 + 20) * 5\n"
-//                "    mod = total % 3\n"
-//                "\n"
-//                "    repeat 3 {\n"
-//                "        print(\"looping\")\n"
-//                "    }\n"
-//                "}";
-//
+char *source = "probe sys_execve {\n"
+               "    print(\"exec called\")\n"
+               "\n"
+               "    pid = 1337\n"
+               "    counter = counter + 1\n"
+               "\n"
+               "// modi\n"
+               "    if (pid >= 1000) {\n"
+               "        print(\"large pid\")\n"
+               "    }\n"
+               "\n"
+               "    if (counter == 10) {\n"
+               "        print(\"counter reached\")\n"
+               "    }\n"
+               "\n"
+               "/* checking for \n"
+               "multi-line comment*/ \n"
+               "    if (pid != 1) {\n"
+               "        print(\"not init process\")\n"
+               "    }\n"
+               "\n"
+               "    total = (10 + 20) * 5\n"
+               "    mod = total % 3\n"
+               "\n"
+               "    repeat 3 {\n"
+               "        print(\"looping\")\n"
+               "    }\n"
+               "}";
+
 void read_char(Lexer *l) {
   if (l->input[l->position] == '\0') {
     l->ch = 0;
@@ -366,20 +366,20 @@ Token next_token(Lexer *l) {
   return tok;
 }
 
-// int main() {
-//   Lexer lexer;
-//
-//   init_lexer(&lexer, source);
-//
-//   Token tok;
-//
-//   do {
-//     tok = next_token(&lexer);
-//
-//     printf("Type: %-12s Literal: %s\n", token_type_to_string[tok.type],
-//            tok.literal);
-//
-//   } while (tok.type != TOKEN_EOF);
-//
-//   return 0;
-// }
+int main() {
+  Lexer lexer;
+
+  init_lexer(&lexer, source);
+
+  Token tok;
+
+  do {
+    tok = next_token(&lexer);
+
+    printf("Type: %-12s Literal: %s\n", token_type_to_string[tok.type],
+           tok.literal);
+
+  } while (tok.type != TOKEN_EOF);
+
+  return 0;
+}
