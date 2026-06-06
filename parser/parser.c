@@ -102,3 +102,24 @@ ASTNode *parse_assignment(Parser *p) {
 
   return node;
 }
+
+ASTNode *parse_program(Parser *p) {
+  ASTNode *program = new_node(NODE_PROGRAM);
+
+  while (!cur_token_is(p, TOKEN_EOF)) {
+    ASTNode *stmt = parse_program(p);
+
+    if (stmt != NULL) {
+      program->children = realloc(
+          program->children, sizeof(ASTNode *) * (program->child_count + 1));
+
+      program->children[program->child_count++] = stmt;
+    }
+    next_token_parser(p);
+  }
+  return program;
+}
+
+void parser_error(Parser *p, const char *msg) {
+  fprintf(stderr, "Parser Error: %s near '%s'\n", msg, p->cur_token.literal);
+}
