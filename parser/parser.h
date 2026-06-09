@@ -61,6 +61,12 @@ typedef struct {
   Token peek_token;
 } Parser;
 
+typedef enum {
+  PREC_LOWEST,
+  PREC_SUM,     // + -
+  PREC_PRODUCT, // * / %
+} Precedence;
+
 void parser_init(Parser *p, Lexer *l);
 void next_token_parser(Parser *p);
 void parser_error(Parser *p, const char *msg);
@@ -73,6 +79,8 @@ ASTNode *new_identifier(Token tok);
 ASTNode *parse_program(Parser *p);
 ASTNode *parse_statement(Parser *p);
 ASTNode *parse_assignment(Parser *p);
-ASTNode *parse_expression(Parser *p);
+ASTNode *parse_expression(Parser *p, Precedence prec);
 ASTNode *parse_identifier(Parser *p);
 ASTNode *parse_number(Parser *p);
+Precedence get_precedence(TokenType t);
+void print_ast(ASTNode *node, int depth);

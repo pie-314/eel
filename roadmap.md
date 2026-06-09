@@ -18,7 +18,7 @@ Converting the token stream into an Abstract Syntax Tree (AST) that represents t
 
 - [ ] Design AST node structures for:
     - [ ] Probe definitions.
-    - [ ] Variable declarations and assignments.
+    - [x] Variable declarations and assignments.
     - [ ] Function/Helper calls (e.g., `print`).
     - [ ] Control flow (If/Else, Loops).
     - [ ] Expressions (Arithmetic, Comparison).
