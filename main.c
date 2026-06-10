@@ -2,7 +2,11 @@
 #include "parser/parser.h"
 
 int main() {
-  char *source = "x = 10 + 5 * 10\n";
+  char *source = "{\n"
+                 "  print(\"start\")\n"
+                 "  x = 42{\n"
+                 "  print(\"end\")}\n"
+                 "}";
   Lexer lexer;
   Parser parser;
 

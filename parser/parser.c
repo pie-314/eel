@@ -61,10 +61,18 @@ ASTNode *parse_identifier(Parser *p) {
   return node;
 }
 
-<<<<<<< HEAD
-=======
 Precedence get_precedence(TokenType t) {
   switch (t) {
+  case TOKEN_EQ:
+    return PREC_EQUALS;
+
+  case TOKEN_GT:
+  case TOKEN_LT:
+  case TOKEN_NOTEQ:
+  case TOKEN_GTE:
+  case TOKEN_LTE:
+    return PREC_COMPARE;
+
   case TOKEN_ADD:
   case TOKEN_SUBTRACT:
     return PREC_SUM;
@@ -79,17 +87,84 @@ Precedence get_precedence(TokenType t) {
   }
 }
 
+ASTNode *parse_string(Parser *p) {
+  ASTNode *node = new_node(NODE_STRING);
+  node->token = p->cur_token;
+  return node;
+}
+
+// handle blocks
+ASTNode *parse_blocks(Parser *p) {
+  ASTNode *block = new_node(NODE_BLOCK);
+
+  next_token_parser(p);
+
+  while (!cur_token_is(p, TOKEN_RBRACE) && !cur_token_is(p, TOKEN_EOF)) {
+
+    ASTNode *stmt = parse_statement(p);
+
+    if (stmt) {
+      block->children = realloc(block->children,
+                                sizeof(ASTNode *) * (block->child_count + 1));
+
+      block->children[block->child_count++] = stmt;
+    }
+
+    next_token_parser(p);
+  }
+
+  return block;
+}
+
 ASTNode *parse_primary(Parser *p) {
   if (cur_token_is(p, TOKEN_NUMBER))
     return parse_number(p);
 
-  if (cur_token_is(p, TOKEN_IDENTIFIER))
+  if (cur_token_is(p, TOKEN_IDENTIFIER)) {
+    if (peek_token_is(p, TOKEN_LPAREN))
+      return parse_call_expression(p);
+
     return parse_identifier(p);
+  }
+  if (cur_token_is(p, TOKEN_STRING))
+    return parse_string(p);
+
+  if (cur_token_is(p, TOKEN_LPAREN)) {
+    next_token_parser(p);
+
+    ASTNode *expr = parse_expression(p, PREC_LOWEST);
+
+    if (!expect_peek(p, TOKEN_RPAREN)) {
+      return NULL;
+    }
+
+    return expr;
+  }
+  if (cur_token_is(p, TOKEN_LBRACE)) {
+    printf("reached parse_blocks");
+    return parse_blocks(p);
+  }
 
   return NULL;
 }
 
->>>>>>> 5207145 (pratt parser for expressions implemented)
+ASTNode *parse_call_expression(Parser *p) {
+
+  ASTNode *call = new_node(NODE_CALL);
+
+  call->left = parse_identifier(p);
+
+  expect_peek(p, TOKEN_LPAREN);
+
+  next_token_parser(p);
+
+  call->right = parse_primary(p);
+
+  expect_peek(p, TOKEN_RPAREN);
+
+  return call;
+}
+
 ASTNode *parse_number(Parser *p) {
   ASTNode *node = new_node(NODE_NUMBER);
   node->token = p->cur_token;
@@ -97,34 +172,41 @@ ASTNode *parse_number(Parser *p) {
   return node;
 }
 
-<<<<<<< HEAD
-ASTNode *parse_expression(Parser *p) {
-  ASTNode *node = new_node(NODE_EXPR_STMT);
-  node->token = p->cur_token;
-  node->left = parse_identifier(p);
-
-  if (!expect_peek(p, TOKEN_ADD))
-    return NULL;
-
-  next_token_parser(p);
-  node->right = parse_number(p);
-
-  return node;
-}
-
-=======
 NodeType token_to_node(TokenType t) {
   switch (t) {
   case TOKEN_ADD:
     return NODE_ADD;
+
   case TOKEN_SUBTRACT:
     return NODE_SUB;
+
   case TOKEN_MULTI:
     return NODE_MUL;
+
   case TOKEN_DIV:
     return NODE_DIV;
+
   case TOKEN_MOD:
     return NODE_MOD;
+
+  case TOKEN_EQ:
+    return NODE_EQ;
+
+  case TOKEN_NOTEQ:
+    return NODE_NEQ;
+
+  case TOKEN_GT:
+    return NODE_GT;
+
+  case TOKEN_LT:
+    return NODE_LT;
+
+  case TOKEN_GTE:
+    return NODE_GTE;
+
+  case TOKEN_LTE:
+    return NODE_LTE;
+
   default:
     return NODE_EXPR_STMT;
   }
@@ -237,10 +319,15 @@ ASTNode *parse_expression(Parser *p, Precedence prec) {
 
   return left;
 }
->>>>>>> 5207145 (pratt parser for expressions implemented)
 ASTNode *parse_statement(Parser *p) {
+  if (cur_token_is(p, TOKEN_LBRACE)) {
+    return parse_blocks(p);
+  }
   if (cur_token_is(p, TOKEN_IDENTIFIER) && peek_token_is(p, TOKEN_ASSIGN)) {
     return parse_assignment(p);
+  }
+  if (cur_token_is(p, TOKEN_IDENTIFIER) && peek_token_is(p, TOKEN_LPAREN)) {
+    return parse_call_expression(p);
   }
 
   return NULL;
@@ -255,11 +342,7 @@ ASTNode *parse_assignment(Parser *p) {
     return NULL;
 
   next_token_parser(p);
-<<<<<<< HEAD
-  node->right = parse_number(p);
-=======
   node->right = parse_expression(p, PREC_LOWEST);
->>>>>>> 5207145 (pratt parser for expressions implemented)
 
   return node;
 }
@@ -268,11 +351,7 @@ ASTNode *parse_program(Parser *p) {
   ASTNode *program = new_node(NODE_PROGRAM);
 
   while (!cur_token_is(p, TOKEN_EOF)) {
-<<<<<<< HEAD
-    ASTNode *stmt = parse_program(p);
-=======
     ASTNode *stmt = parse_statement(p);
->>>>>>> 5207145 (pratt parser for expressions implemented)
 
     if (stmt != NULL) {
       program->children = realloc(
@@ -288,8 +367,6 @@ ASTNode *parse_program(Parser *p) {
 void parser_error(Parser *p, const char *msg) {
   fprintf(stderr, "Parser Error: %s near '%s'\n", msg, p->cur_token.literal);
 }
-<<<<<<< HEAD
-=======
 
 const char *node_type_to_string[] = {
     "PROGRAM",   "IDENT",  "NUMBER", "STRING",
@@ -331,4 +408,3 @@ void print_ast(ASTNode *node, int depth) {
     print_ast(node->children[i], depth + 1);
   }
 }
->>>>>>> 5207145 (pratt parser for expressions implemented)

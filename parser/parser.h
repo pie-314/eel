@@ -63,6 +63,8 @@ typedef struct {
 
 typedef enum {
   PREC_LOWEST,
+  PREC_EQUALS,
+  PREC_COMPARE,
   PREC_SUM,     // + -
   PREC_PRODUCT, // * / %
 } Precedence;
@@ -81,6 +83,10 @@ ASTNode *parse_statement(Parser *p);
 ASTNode *parse_assignment(Parser *p);
 ASTNode *parse_expression(Parser *p, Precedence prec);
 ASTNode *parse_identifier(Parser *p);
+ASTNode *parse_string(Parser *p);
 ASTNode *parse_number(Parser *p);
+ASTNode *parse_call_expression(Parser *p);
+ASTNode *parse_blocks(Parser *p);
+
 Precedence get_precedence(TokenType t);
 void print_ast(ASTNode *node, int depth);

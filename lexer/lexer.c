@@ -365,21 +365,21 @@ Token next_token(Lexer *l) {
 
   return tok;
 }
-
-int main() {
-  Lexer lexer;
-
-  init_lexer(&lexer, source);
-
-  Token tok;
-
-  do {
-    tok = next_token(&lexer);
-
-    printf("Type: %-12s Literal: %s\n", token_type_to_string[tok.type],
-           tok.literal);
-
-  } while (tok.type != TOKEN_EOF);
-
-  return 0;
-}
+//
+// int main() {
+//   Lexer lexer;
+//
+//   init_lexer(&lexer, source);
+//
+//   Token tok;
+//
+//   do {
+//     tok = next_token(&lexer);
+//
+//     printf("Type: %-12s Literal: %s\n", token_type_to_string[tok.type],
+//            tok.literal);
+//
+//   } while (tok.type != TOKEN_EOF);
+//
+//   return 0;
+// }
