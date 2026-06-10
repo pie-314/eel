@@ -93,6 +93,70 @@ ASTNode *parse_string(Parser *p) {
   return node;
 }
 
+// handle if / elif / else
+ASTNode *parse_conditionals(Parser *p) {
+
+  ASTNode *node = new_node(NODE_IF);
+
+  if (!expect_peek(p, TOKEN_LPAREN))
+    return NULL;
+
+  next_token_parser(p);
+
+  node->left = parse_expression(p, PREC_LOWEST);
+
+  if (!expect_peek(p, TOKEN_RPAREN))
+    return NULL;
+
+  if (!expect_peek(p, TOKEN_LBRACE))
+    return NULL;
+
+  node->right = parse_blocks(p);
+
+  while (peek_token_is(p, TOKEN_ELIF)) {
+    next_token_parser(p);
+    ASTNode *elif_node = new_node(NODE_ELIF);
+    if (!expect_peek(p, TOKEN_LPAREN))
+      return NULL;
+
+    next_token_parser(p);
+
+    elif_node->left = parse_expression(p, PREC_LOWEST);
+
+    if (!expect_peek(p, TOKEN_RPAREN))
+      return NULL;
+
+    if (!expect_peek(p, TOKEN_LBRACE))
+      return NULL;
+
+    elif_node->right = parse_blocks(p);
+
+    node->children =
+        realloc(node->children, sizeof(ASTNode *) * (node->child_count + 1));
+
+    node->children[node->child_count++] = elif_node;
+  }
+
+  if (peek_token_is(p, TOKEN_ELSE)) {
+
+    next_token_parser(p);
+
+    ASTNode *else_node = new_node(NODE_ELSE);
+
+    if (!expect_peek(p, TOKEN_LBRACE))
+      return NULL;
+
+    else_node->right = parse_blocks(p);
+
+    node->children =
+        realloc(node->children, sizeof(ASTNode *) * (node->child_count + 1));
+
+    node->children[node->child_count++] = else_node;
+  }
+
+  return node;
+}
+
 // handle blocks
 ASTNode *parse_blocks(Parser *p) {
   ASTNode *block = new_node(NODE_BLOCK);
@@ -140,10 +204,9 @@ ASTNode *parse_primary(Parser *p) {
 
     return expr;
   }
-  if (cur_token_is(p, TOKEN_LBRACE)) {
-    printf("reached parse_blocks");
-    return parse_blocks(p);
-  }
+  // if (cur_token_is(p, TOKEN_LBRACE)) {
+  //   return parse_blocks(p);
+  // }
 
   return NULL;
 }
@@ -154,8 +217,9 @@ ASTNode *parse_call_expression(Parser *p) {
 
   call->left = parse_identifier(p);
 
-  expect_peek(p, TOKEN_LPAREN);
-
+  if (!expect_peek(p, TOKEN_LPAREN)) {
+    return NULL;
+  }
   next_token_parser(p);
 
   call->right = parse_primary(p);
@@ -323,6 +387,10 @@ ASTNode *parse_statement(Parser *p) {
   if (cur_token_is(p, TOKEN_LBRACE)) {
     return parse_blocks(p);
   }
+
+  if (cur_token_is(p, TOKEN_IF)) {
+    return parse_conditionals(p);
+  }
   if (cur_token_is(p, TOKEN_IDENTIFIER) && peek_token_is(p, TOKEN_ASSIGN)) {
     return parse_assignment(p);
   }
@@ -369,17 +437,17 @@ void parser_error(Parser *p, const char *msg) {
 }
 
 const char *node_type_to_string[] = {
-    "PROGRAM",   "IDENT",  "NUMBER", "STRING",
+    "PROGRAM",   "IDENT", "NUMBER", "STRING",
 
     "ASSIGN",
 
-    "ADD",       "SUB",    "MUL",    "DIV",    "MOD",
+    "ADD",       "SUB",   "MUL",    "DIV",    "MOD",
 
-    "EQ",        "NEQ",    "GT",     "LT",     "GTE", "LTE",
+    "EQ",        "NEQ",   "GT",     "LT",     "GTE", "LTE",
 
     "EXPR_STMT", "BLOCK",
 
-    "IF",        "REPEAT",
+    "IF",        "ELIF",  "ELSE",   "REPEAT",
 
     "PROBE",
 

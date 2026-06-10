@@ -33,6 +33,8 @@ typedef enum {
   NODE_BLOCK,
 
   NODE_IF,
+  NODE_ELIF,
+  NODE_ELSE,
   NODE_REPEAT,
 
   // eel
