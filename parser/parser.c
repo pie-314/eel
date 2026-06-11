@@ -21,7 +21,7 @@ bool cur_token_is(Parser *p, TokenType t) {
   return false;
 }
 
-// chekc for next token
+// check for next token
 bool peek_token_is(Parser *p, TokenType t) {
   if (p->peek_token.type == t) {
     return true;
@@ -90,6 +90,63 @@ Precedence get_precedence(TokenType t) {
 ASTNode *parse_string(Parser *p) {
   ASTNode *node = new_node(NODE_STRING);
   node->token = p->cur_token;
+  return node;
+}
+
+// parse probes
+ASTNode *parse_probe(Parser *p) {
+
+  ASTNode *node = new_node(NODE_PROBE);
+
+  if (!expect_peek(p, TOKEN_IDENTIFIER)) {
+    return NULL;
+  }
+
+  node->left = parse_primary(p);
+
+  if (!expect_peek(p, TOKEN_LBRACE))
+    return NULL;
+
+  node->right = parse_blocks(p);
+
+  return node;
+}
+
+// parse loops
+ASTNode *parse_repeat(Parser *p) {
+
+  ASTNode *node = new_node(NODE_REPEAT);
+
+  // repeat 5 { ... }
+  if (peek_token_is(p, TOKEN_NUMBER)) {
+
+    next_token_parser(p);
+    node->left = parse_number(p);
+  }
+
+  // repeat (x + 1) { ... }
+  else if (peek_token_is(p, TOKEN_LPAREN)) {
+
+    expect_peek(p, TOKEN_LPAREN);
+
+    next_token_parser(p);
+
+    node->left = parse_expression(p, PREC_LOWEST);
+
+    if (!expect_peek(p, TOKEN_RPAREN))
+      return NULL;
+  }
+
+  else {
+    parser_error(p, "expected repeat count");
+    return NULL;
+  }
+
+  if (!expect_peek(p, TOKEN_LBRACE))
+    return NULL;
+
+  node->right = parse_blocks(p);
+
   return node;
 }
 
@@ -386,6 +443,14 @@ ASTNode *parse_expression(Parser *p, Precedence prec) {
 ASTNode *parse_statement(Parser *p) {
   if (cur_token_is(p, TOKEN_LBRACE)) {
     return parse_blocks(p);
+  }
+
+  if (cur_token_is(p, TOKEN_PROBE)) {
+    return parse_probe(p);
+  }
+
+  if (cur_token_is(p, TOKEN_REPEAT)) {
+    return parse_repeat(p);
   }
 
   if (cur_token_is(p, TOKEN_IF)) {

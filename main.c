@@ -5,7 +5,7 @@ int main() {
   char *source = "{\n"
                  "  print(\"start\")\n"
                  "  x = 6\n"
-                 "  if (x == 7){\n"
+                 "  repeat (x == 7){\n"
                  "  print(\"end\")}\n"
                  "}";
   Lexer lexer;

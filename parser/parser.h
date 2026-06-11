@@ -89,6 +89,7 @@ ASTNode *parse_string(Parser *p);
 ASTNode *parse_number(Parser *p);
 ASTNode *parse_call_expression(Parser *p);
 ASTNode *parse_blocks(Parser *p);
+ASTNode *parse_primary(Parser *p);
 
 Precedence get_precedence(TokenType t);
 void print_ast(ASTNode *node, int depth);
