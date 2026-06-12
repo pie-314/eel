@@ -52,6 +52,7 @@ typedef enum {
   TOKEN_INT,
   TOKEN_STRING_TYPE,
   TOKEN_MAP,
+  TOKEN_COMMA,
 
   TOKEN_COUNT
 } TokenType;

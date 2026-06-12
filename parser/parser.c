@@ -277,9 +277,23 @@ ASTNode *parse_call_expression(Parser *p) {
   if (!expect_peek(p, TOKEN_LPAREN)) {
     return NULL;
   }
+
   next_token_parser(p);
 
-  call->right = parse_primary(p);
+  while (!cur_token_is(p, TOKEN_RPAREN)) {
+    ASTNode *arg = parse_expression(p, PREC_LOWEST);
+
+    call->children =
+        realloc(call->children, sizeof(ASTNode *) * call->child_count + 1);
+    call->children[call->child_count++] = arg;
+
+    if (peek_token_is(p, TOKEN_COMMA)) {
+      next_token_parser(p);
+      next_token_parser(p);
+    } else {
+      break;
+    }
+  }
 
   expect_peek(p, TOKEN_RPAREN);
 

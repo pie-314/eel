@@ -48,6 +48,7 @@ const char *token_type_to_string[TOKEN_COUNT] = {
     [TOKEN_INT] = "INT",
     [TOKEN_STRING_TYPE] = "STR_TYPE",
     [TOKEN_MAP] = "MAP",
+    [TOKEN_COMMA] = "COMMA",
 
     [TOKEN_ASSIGN] = "="};
 
@@ -217,6 +218,12 @@ Token next_token(Lexer *l) {
   case ';':
     tok.type = TOKEN_SEMICOLON;
     strcpy(tok.literal, ";");
+    read_char(l);
+    break;
+
+  case ',':
+    tok.type = TOKEN_COMMA;
+    strcpy(tok.literal, ",");
     read_char(l);
     break;
 
