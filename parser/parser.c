@@ -284,7 +284,7 @@ ASTNode *parse_call_expression(Parser *p) {
     ASTNode *arg = parse_expression(p, PREC_LOWEST);
 
     call->children =
-        realloc(call->children, sizeof(ASTNode *) * call->child_count + 1);
+        realloc(call->children, sizeof(ASTNode *) * (call->child_count + 1));
     call->children[call->child_count++] = arg;
 
     if (peek_token_is(p, TOKEN_COMMA)) {
