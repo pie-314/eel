@@ -23,6 +23,7 @@ const char *token_type_to_string[TOKEN_COUNT] = {
     // arthmetic
     [TOKEN_ADD] = "+",
     [TOKEN_SUBTRACT] = "-",
+    [TOKEN_NOT] = "!",
     [TOKEN_MULTI] = "*",
     [TOKEN_DIV] = "/",
     [TOKEN_MOD] = "%",

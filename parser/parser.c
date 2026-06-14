@@ -124,6 +124,13 @@ ASTNode *parse_repeat(Parser *p) {
     node->left = parse_number(p);
   }
 
+  // repeat x
+  if (peek_token_is(p, TOKEN_IDENTIFIER)) {
+    next_token_parser(p);
+    node->left = parse_identifier(p);
+
+  }
+
   // repeat (x + 1) { ... }
   else if (peek_token_is(p, TOKEN_LPAREN)) {
 
@@ -240,6 +247,13 @@ ASTNode *parse_blocks(Parser *p) {
 ASTNode *parse_primary(Parser *p) {
   if (cur_token_is(p, TOKEN_NUMBER))
     return parse_number(p);
+
+  if (cur_token_is(p, TOKEN_SUBTRACT)) {
+    return parse_prefix(p);
+  }
+
+  if (cur_token_is(p, TOKEN_NOT))
+    return parse_prefix(p);
 
   if (cur_token_is(p, TOKEN_IDENTIFIER)) {
     if (peek_token_is(p, TOKEN_LPAREN))
@@ -429,6 +443,23 @@ NodeType token_to_node(TokenType t) {
 //   return add;
 // }
 
+ASTNode *parse_prefix(Parser *p) {
+  ASTNode *node = NULL;
+
+  if (cur_token_is(p, TOKEN_SUBTRACT))
+    node = new_node(NODE_NEG);
+  else if (cur_token_is(p, TOKEN_NOT))
+    node = new_node(NODE_NOT);
+  else
+    return NULL;
+
+  next_token_parser(p);
+
+  node->left = parse_expression(p, PREC_PREFIX);
+
+  return node;
+}
+
 ASTNode *parse_expression(Parser *p, Precedence prec) {
 
   ASTNode *left = parse_primary(p);
@@ -459,21 +490,25 @@ ASTNode *parse_statement(Parser *p) {
     return parse_blocks(p);
   }
 
-  if (cur_token_is(p, TOKEN_PROBE)) {
+  else if (cur_token_is(p, TOKEN_PROBE)) {
     return parse_probe(p);
   }
 
-  if (cur_token_is(p, TOKEN_REPEAT)) {
+  else if (cur_token_is(p, TOKEN_REPEAT)) {
     return parse_repeat(p);
   }
 
-  if (cur_token_is(p, TOKEN_IF)) {
+  else if (cur_token_is(p, TOKEN_IF)) {
     return parse_conditionals(p);
   }
-  if (cur_token_is(p, TOKEN_IDENTIFIER) && peek_token_is(p, TOKEN_ASSIGN)) {
+
+  else if (cur_token_is(p, TOKEN_IDENTIFIER) &&
+           peek_token_is(p, TOKEN_ASSIGN)) {
     return parse_assignment(p);
   }
-  if (cur_token_is(p, TOKEN_IDENTIFIER) && peek_token_is(p, TOKEN_LPAREN)) {
+
+  else if (cur_token_is(p, TOKEN_IDENTIFIER) &&
+           peek_token_is(p, TOKEN_LPAREN)) {
     return parse_call_expression(p);
   }
 
@@ -516,21 +551,10 @@ void parser_error(Parser *p, const char *msg) {
 }
 
 const char *node_type_to_string[] = {
-    "PROGRAM",   "IDENT", "NUMBER", "STRING",
-
-    "ASSIGN",
-
-    "ADD",       "SUB",   "MUL",    "DIV",    "MOD",
-
-    "EQ",        "NEQ",   "GT",     "LT",     "GTE", "LTE",
-
-    "EXPR_STMT", "BLOCK",
-
-    "IF",        "ELIF",  "ELSE",   "REPEAT",
-
-    "PROBE",
-
-    "CALL"};
+    "PROGRAM", "IDENT", "NUMBER", "STRING", "ASSIGN",    "ADD",   "SUB",
+    "MUL",     "DIV",   "MOD",    "EQ",     "NEQ",       "GT",    "LT",
+    "GTE",     "LTE",   "NEG",    "NOT",    "EXPR_STMT", "BLOCK", "IF",
+    "ELIF",    "ELSE",  "REPEAT", "PROBE",  "CALL"};
 
 void print_ast(ASTNode *node, int depth) {
   if (node == NULL)

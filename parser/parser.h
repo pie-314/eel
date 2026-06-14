@@ -28,6 +28,9 @@ typedef enum {
   NODE_GTE,
   NODE_LTE,
 
+  NODE_NEG,
+  NODE_NOT,
+
   // statements
   NODE_EXPR_STMT,
   NODE_BLOCK,
@@ -69,6 +72,7 @@ typedef enum {
   PREC_COMPARE,
   PREC_SUM,     // + -
   PREC_PRODUCT, // * / %
+  PREC_PREFIX,
 } Precedence;
 
 void parser_init(Parser *p, Lexer *l);
@@ -90,6 +94,7 @@ ASTNode *parse_number(Parser *p);
 ASTNode *parse_call_expression(Parser *p);
 ASTNode *parse_blocks(Parser *p);
 ASTNode *parse_primary(Parser *p);
+ASTNode *parse_prefix(Parser *p);
 
 Precedence get_precedence(TokenType t);
 void print_ast(ASTNode *node, int depth);

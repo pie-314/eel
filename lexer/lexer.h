@@ -24,6 +24,7 @@ typedef enum {
   // arthmetic
   TOKEN_ADD,
   TOKEN_SUBTRACT,
+  TOKEN_NOT,
   TOKEN_MULTI,
   TOKEN_DIV,
   TOKEN_MOD,
