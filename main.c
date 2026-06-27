@@ -30,6 +30,4 @@ int main() {
   ASTNode *root = parse_program(&parser);
 
   print_ast(root, 0);
-
-  return 0;
 }
