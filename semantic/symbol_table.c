@@ -1,3 +1,6 @@
+/* The implementation of symbol table is taken from :
+ * https://github.com/pie-314/RadishDB */
+
 #include "symbol_table.h"
 #include <stdlib.h>
 #include <string.h>
@@ -15,12 +18,15 @@
     printf("%d\n", symbol_exists(&table, "foo")); // 0
  */
 
+// for initial version key and value are same
 void symbol_insert(SymbolTable *table, const char *name) {
   Symbol *sym = malloc(sizeof(Symbol));
-
   strcpy(sym->name, name);
-
   st_set(table, name, sym);
+}
+
+bool symbol_exists(SymbolTable *table, const char *name) {
+  return st_get(table, name) != NULL;
 }
 
 SymbolTable *st_create(int size) {
@@ -67,7 +73,7 @@ void st_resize(SymbolTable *st, int new_size) {
   st->resizes++;
 }
 
-void st_set(SymbolTable *st, const char *key, const char *value) {
+void st_set(SymbolTable *st, const char *key, Symbol *value) {
   // resizing check
   float load = (float)st->count / st->size;
   if (load > 0.75f) {
@@ -81,7 +87,7 @@ void st_set(SymbolTable *st, const char *key, const char *value) {
   while (entry != NULL) {
     if (strcmp(entry->key, key) == 0) {
       free(entry->symbol);
-      memcpy(entry->symbol, &value, sizeof(Symbol));
+      entry->symbol = value;
       return;
     }
     entry = entry->next;
@@ -92,7 +98,8 @@ void st_set(SymbolTable *st, const char *key, const char *value) {
     return;
 
   new_entry->key = strdup(key);
-  memcpy(entry->symbol, &value, sizeof(Symbol));
+
+  new_entry->symbol = value;
 
   new_entry->next = st->buckets[index];
 
@@ -104,7 +111,6 @@ Symbol *st_get(SymbolTable *st, const char *key) {
   unsigned long h = hash(key);
   int index = h % st->size;
 
-  time_t cur_time = time(NULL);
   Entry *entry = st->buckets[index];
   while (entry != NULL) {
     if (strcmp(entry->key, key) == 0) {
