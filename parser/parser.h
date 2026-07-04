@@ -1,3 +1,5 @@
+#ifndef PARSER_H
+#define PARSER_H
 #include "../lexer/lexer.h"
 #include <stdbool.h>
 #include <stdio.h>
@@ -98,3 +100,5 @@ ASTNode *parse_prefix(Parser *p);
 
 Precedence get_precedence(TokenType t);
 void print_ast(ASTNode *node, int depth);
+
+#endif

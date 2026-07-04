@@ -1,5 +1,6 @@
 #include "lexer/lexer.h"
 #include "parser/parser.h"
+#include "semantic/semantic.h"
 
 int main() {
   // char *source = "{\n"
@@ -14,7 +15,8 @@ int main() {
   char *source = "probe sys_execve {\n"
                  "    pid = 1337\n"
                  "\n"
-                 "x = -10\n"
+                 "{x = -10}\n"
+                 "z = x + 10\n"
                  "    if (pid > 1000) {\n"
                  "        repeat pid {\n"
                  "            print(\"large\",\"hello\",pid+1000)\n"
@@ -28,6 +30,8 @@ int main() {
   parser_init(&parser, &lexer);
 
   ASTNode *root = parse_program(&parser);
+
+  semantic_analyze(root);
 
   print_ast(root, 0);
 }

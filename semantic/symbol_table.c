@@ -25,8 +25,18 @@ void symbol_insert(SymbolTable *table, const char *name) {
   st_set(table, name, sym);
 }
 
+// need to update this to look across symbol scope
 bool symbol_exists(SymbolTable *table, const char *name) {
-  return st_get(table, name) != NULL;
+  SymbolTable *current = table;
+
+  while (current != NULL) {
+    if (st_get(current, name) != NULL) {
+      return true;
+    }
+    current = current->parent;
+  }
+
+  return false;
 }
 
 SymbolTable *st_create(int size) {
@@ -39,7 +49,7 @@ SymbolTable *st_create(int size) {
   st->resizes = 0;
   st->buckets = malloc(size * sizeof(Entry *)); // multiply that one SymbolTable
                                                 // with total enteries and allot
-
+  st->parent = NULL;
   for (int i = 0; i < size; i++) {
     st->buckets[i] = NULL; // set all values to NULL (initialization)
   }

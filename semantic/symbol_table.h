@@ -23,6 +23,7 @@ typedef struct SymbolTable {
   size_t size;
   int count;
   int resizes;
+  struct SymbolTable *parent;
 } SymbolTable;
 
 SymbolTable *st_create(int size);

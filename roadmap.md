@@ -16,8 +16,8 @@ The foundation of the compiler, responsible for converting raw source code into 
 ## Phase 2: Syntax Analysis (Parser)
 Converting the token stream into an Abstract Syntax Tree (AST) that represents the program structure.
 
-- [ ] Design AST node structures for:
-    - [ ] Probe definitions.
+- [x] Design AST node structures for:
+    - [x] Probe definitions.
     - [x] Variable declarations and assignments.
     - [x] Function/Helper calls (e.g., `print`).
     - [x] Control flow (If/Else, Loops).

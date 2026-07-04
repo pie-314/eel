@@ -5,7 +5,9 @@ CFLAGS = -Wall -Wextra -g
 SRC = \
 	main.c \
 	lexer/lexer.c \
-	parser/parser.c
+	parser/parser.c \
+	semantic/semantic.c \
+	semantic/symbol_table.c
 
 TARGET = eel
 
