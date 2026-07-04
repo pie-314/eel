@@ -67,8 +67,17 @@ void st_resize(SymbolTable *st, int new_size) {
     while (entry) {
       Entry *next = entry->next;
 
-      unsigned long h = hash(entry->key);
-      int index = h % new_size;
+      /*
+       * ALGORITHMIC/MATH OPTIMIZATIONS:
+       * 1. Cached Hash: entry->hash is reused. Calculating string hashes is O(length),
+       *    so reusing the cached hash avoids redundant CPU work during resizing.
+       * 2. Bitwise Modulo: Since new_size is guaranteed to be a power of two,
+       *    h % new_size is mathematically equivalent to h & (new_size - 1).
+       *    Bitwise AND is a single-cycle CPU operation, while integer modulo division (%)
+       *    can take up to 40 CPU cycles.
+       */
+      unsigned long h = entry->hash;
+      int index = h & (new_size - 1);
 
       entry->next = new_buckets[index];
       new_buckets[index] = entry;
@@ -91,7 +100,8 @@ void st_set(SymbolTable *st, const char *key, Symbol *value) {
   }
 
   unsigned long h = hash(key);
-  int index = h % st->size;
+  /* Bitwise Modulo optimization: h & (st->size - 1) instead of h % st->size */
+  int index = h & (st->size - 1);
 
   Entry *entry = st->buckets[index];
   while (entry != NULL) {
@@ -108,7 +118,7 @@ void st_set(SymbolTable *st, const char *key, Symbol *value) {
     return;
 
   new_entry->key = strdup(key);
-
+  new_entry->hash = h; /* Cache the hash for future resize operations */
   new_entry->symbol = value;
 
   new_entry->next = st->buckets[index];
@@ -119,7 +129,8 @@ void st_set(SymbolTable *st, const char *key, Symbol *value) {
 
 Symbol *st_get(SymbolTable *st, const char *key) {
   unsigned long h = hash(key);
-  int index = h % st->size;
+  /* Bitwise Modulo optimization: h & (st->size - 1) instead of h % st->size */
+  int index = h & (st->size - 1);
 
   Entry *entry = st->buckets[index];
   while (entry != NULL) {
@@ -133,7 +144,8 @@ Symbol *st_get(SymbolTable *st, const char *key) {
 
 int st_delete(SymbolTable *st, const char *key) {
   unsigned long h = hash(key);
-  int index = (int)(h % st->size);
+  /* Bitwise Modulo optimization: h & (st->size - 1) instead of h % st->size */
+  int index = (int)(h & (st->size - 1));
 
   Entry *entry = st->buckets[index];
   Entry *prev = NULL;

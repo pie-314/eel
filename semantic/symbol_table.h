@@ -14,6 +14,7 @@ typedef struct {
 
 typedef struct Entry {
   char *key;
+  unsigned long hash;
   Symbol *symbol;
   struct Entry *next;
 } Entry;

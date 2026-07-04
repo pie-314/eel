@@ -91,13 +91,18 @@ void analyze_node(ASTNode *node, SymbolTable *table) {
     break;
 
   case NODE_CALL:
-    analyze_node(node->right, table);
+    for (int i = 0; i < node->child_count; i++) {
+      analyze_node(node->children[i], table);
+    }
     break;
 
   case NODE_IF:
   case NODE_ELIF:
     analyze_node(node->left, table);
     analyze_node(node->right, table);
+    for (int i = 0; i < node->child_count; i++) {
+      analyze_node(node->children[i], table);
+    }
     break;
 
   case NODE_ELSE:
