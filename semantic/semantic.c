@@ -32,7 +32,13 @@ void semantic_analyze(ASTNode *root) {
 
 void create_newscope(ASTNode *node, SymbolTable *parent) {
   SymbolTable *child = st_create(128);
-  analyze_node(node, child);
+
+  child->parent = parent; // child can climb toward outer scopes
+
+  for (int i = 0; i < node->child_count; i++) {
+    analyze_node(node->children[i], child);
+  }
+
   st_free(child);
 }
 
@@ -50,10 +56,8 @@ void analyze_node(ASTNode *node, SymbolTable *table) {
 
   case NODE_BLOCK: // make changes so it creates a new symboltable and points to
                    // previous one
-    create_newscope(node, table);
-    for (int i = 0; i < node->child_count; i++) {
-      analyze_node(node->children[i], table);
-    }
+    create_newscope(node, table); // In the case of new block the code will come
+                                  // here and a new scope is created
     break;
 
   case NODE_ASSIGN:
