@@ -29,10 +29,10 @@ Converting the token stream into an Abstract Syntax Tree (AST) that represents t
 ## Phase 3: Semantic Analysis & IR Generation
 Validating the AST and lowering it to a "Verifier-safe" Intermediate Representation.
 
-- [ ] Symbol table management (Scope handling).
-- [ ] Type checking (e.g., ensuring map keys/values match).
-- [ ] eBPF Verifier pre-checks (Loop bounds, stack size limits).
-- [ ] Implementation of a custom IR optimized for eBPF instruction mapping.
+- [x] Symbol table management (Scope handling).
+- [x] Type checking (Expressions, assignments, comparisons).
+- [x] eBPF Verifier pre-checks (Loop bounds, stack size limits, helper arguments).
+- [ ] Implementation of a custom IR / Lowering to eBPF instruction mapping.
 
 ## Phase 4: eBPF Bytecode Generation
 The "heart" of the standalone compiler—generating 64-bit eBPF instructions directly.

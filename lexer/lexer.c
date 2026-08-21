@@ -48,7 +48,8 @@ const char *token_type_to_string[TOKEN_COUNT] = {
     // types
     [TOKEN_INT] = "INT",
     [TOKEN_STRING_TYPE] = "STR_TYPE",
-    [TOKEN_MAP] = "MAP",
+    [TOKEN_MAP] = "MAP", // TODO: Map doesn't exist as of now
+
     [TOKEN_COMMA] = "COMMA",
 
     [TOKEN_ASSIGN] = "="};
@@ -81,7 +82,7 @@ const char *token_type_to_string[TOKEN_COUNT] = {
 //                "        print(\"looping\")\n"
 //                "    }\n"
 //                "}";
-//
+
 void read_char(Lexer *l) {
   if (l->input[l->position] == '\0') {
     l->ch = 0;

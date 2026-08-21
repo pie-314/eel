@@ -18,25 +18,34 @@
     printf("%d\n", symbol_exists(&table, "foo")); // 0
  */
 
-// for initial version key and value are same
-void symbol_insert(SymbolTable *table, const char *name) {
+Symbol *symbol_insert(SymbolTable *table, const char *name, DataType type, int stack_offset) {
   Symbol *sym = malloc(sizeof(Symbol));
-  strcpy(sym->name, name);
+  strncpy(sym->name, name, sizeof(sym->name) - 1);
+  sym->name[sizeof(sym->name) - 1] = '\0';
+  sym->type = type;
+  sym->stack_offset = stack_offset;
+  sym->size = (type == TYPE_INT) ? 8 : 0;
+  sym->is_builtin = false;
   st_set(table, name, sym);
+  return sym;
 }
 
-// need to update this to look across symbol scope
-bool symbol_exists(SymbolTable *table, const char *name) {
+Symbol *symbol_lookup(SymbolTable *table, const char *name) {
   SymbolTable *current = table;
 
   while (current != NULL) {
-    if (st_get(current, name) != NULL) {
-      return true;
+    Symbol *sym = st_get(current, name);
+    if (sym != NULL) {
+      return sym;
     }
     current = current->parent;
   }
 
-  return false;
+  return NULL;
+}
+
+bool symbol_exists(SymbolTable *table, const char *name) {
+  return symbol_lookup(table, name) != NULL;
 }
 
 SymbolTable *st_create(int size) {

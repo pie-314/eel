@@ -14,12 +14,15 @@ int main() {
   //                "}\n";
   char *source = "probe sys_execve {\n"
                  "    pid = 1337\n"
+                 "   // y = 10\n"
                  "\n"
-                 "{x = -10}\n"
-                 "z = x + 10\n"
-                 "    if (pid > 1000) {\n"
+                 "int x = \"hello\"\n"
+                 "int z = y + 10\n"
+                 "    if (pid == \"1000\") {\n"
+                 "        a = 10; \n"
                  "        repeat pid {\n"
                  "            print(\"large\",\"hello\",pid+1000)\n"
+                 "            b = a\n"
                  "        }\n"
                  "    }\n"
                  "}";
@@ -33,5 +36,5 @@ int main() {
 
   semantic_analyze(root);
 
-  print_ast(root, 0);
+  // print_ast(root, 0);
 }

@@ -3,11 +3,16 @@
 
 #include "../parser/parser.h"
 #include "symbol_table.h"
+#include <stdbool.h>
 
-void semantic_analyze(ASTNode *root);
+typedef struct {
+  int errors;
+  int current_stack_offset;
+} SemanticContext;
 
-void analyze_node(ASTNode *node, SymbolTable *table);
-
-void create_newscope(ASTNode *node, SymbolTable *parent);
+bool semantic_analyze(ASTNode *root);
+void analyze_node(ASTNode *node, SymbolTable *table, SemanticContext *ctx);
+void create_newscope(ASTNode *node, SymbolTable *parent, SemanticContext *ctx);
+DataType check_expression(ASTNode *node, SymbolTable *table, SemanticContext *ctx);
 
 #endif

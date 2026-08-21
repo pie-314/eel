@@ -8,8 +8,20 @@
 
 #define HASHTABLE_H
 
+typedef enum {
+  TYPE_UNKNOWN,
+  TYPE_INT,
+  TYPE_STR,
+  TYPE_MAP,
+  TYPE_VOID
+} DataType;
+
 typedef struct {
   char name[64];
+  DataType type;
+  int stack_offset;
+  int size;
+  bool is_builtin;
 } Symbol;
 
 typedef struct Entry {
@@ -33,7 +45,8 @@ Symbol *st_get(SymbolTable *st, const char *key);
 int st_delete(SymbolTable *st, const char *key);
 void st_free(SymbolTable *st);
 void st_resize(SymbolTable *st, int new_size);
-void symbol_insert(SymbolTable *table, const char *name);
+Symbol *symbol_insert(SymbolTable *table, const char *name, DataType type, int stack_offset);
+Symbol *symbol_lookup(SymbolTable *table, const char *name);
 bool symbol_exists(SymbolTable *table, const char *name);
 
 #endif

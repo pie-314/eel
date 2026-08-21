@@ -502,6 +502,12 @@ ASTNode *parse_statement(Parser *p) {
     return parse_conditionals(p);
   }
 
+  else if ((cur_token_is(p, TOKEN_INT) || cur_token_is(p, TOKEN_STRING_TYPE)) &&
+           peek_token_is(p, TOKEN_IDENTIFIER)) {
+    next_token_parser(p);
+    return parse_assignment(p);
+  }
+
   else if (cur_token_is(p, TOKEN_IDENTIFIER) &&
            peek_token_is(p, TOKEN_ASSIGN)) {
     return parse_assignment(p);
