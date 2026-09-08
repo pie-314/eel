@@ -7,7 +7,8 @@ SRC = \
 	lexer/lexer.c \
 	parser/parser.c \
 	semantic/semantic.c \
-	semantic/symbol_table.c
+	semantic/symbol_table.c \
+	codegen/codegen.c
 
 TARGET = eel
 

@@ -1,31 +1,23 @@
+#include "codegen/codegen.h"
 #include "lexer/lexer.h"
 #include "parser/parser.h"
 #include "semantic/semantic.h"
 
-int main() {
-  // char *source = "{\n"
-  //                "  print(\"start\")\n"
-  //                "  x = 6\n"
-  //                "  repeat (x == 7){\n"
-  //                "  print(\"end\")}\n"
-  //                "}\n"
-  //                "probe sys_exceve {\n"
-  //                "print(\"hello world\")\n"
-  //                "}\n";
-  char *source = "probe sys_execve {\n"
-                 "    pid = 1337\n"
-                 "   // y = 10\n"
-                 "\n"
-                 "int x = \"hello\"\n"
-                 "int z = y + 10\n"
-                 "    if (pid == \"1000\") {\n"
-                 "        a = 10; \n"
-                 "        repeat pid {\n"
-                 "            print(\"large\",\"hello\",pid+1000)\n"
-                 "            b = a\n"
-                 "        }\n"
-                 "    }\n"
-                 "}";
+int main(int argc, char **argv) {
+  char *default_source = "probe sys_execve {\n"
+                         "    pid = 1337\n"
+                         "   // y = 10\n"
+                         "\n"
+                         "int x = \"hello\"\n"
+                         "    if (pid == 1000) {\n"
+                         "        a = 10; \n"
+                         "        repeat pid {\n"
+                         "            print(\"large\",\"hello\",pid+1000)\n"
+                         "            b = a\n"
+                         "        }\n"
+                         "    }\n"
+                         "}";
+  char *source = (argc > 1) ? argv[1] : default_source;
   Lexer lexer;
   Parser parser;
 
@@ -34,7 +26,15 @@ int main() {
 
   ASTNode *root = parse_program(&parser);
 
-  semantic_analyze(root);
+  bool ok = semantic_analyze(root);
+  if (ok) {
+    BytecodeBuffer *buf = compile_ast_to_bytecode(root, NULL);
+    if (buf) {
+      bytecode_dump(buf);
+      bytecode_free(buf);
+    }
+  }
 
   // print_ast(root, 0);
+  return 0;
 }
