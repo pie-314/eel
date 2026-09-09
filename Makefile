@@ -16,7 +16,7 @@ all:
 	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
 
 run: all
-	./$(TARGET)
+	./$(TARGET) example.eel
 
 clean:
 	rm -f $(TARGET)

@@ -1,0 +1,6 @@
+probe sys_execve {
+    pid = 1337
+    if (pid > 1000) {
+        print("execve called with pid", pid)
+    }
+}
