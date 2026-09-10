@@ -12,11 +12,16 @@ SRC = \
 
 TARGET = eel
 
-all:
+all: $(TARGET) eel-loader
+
+$(TARGET):
 	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
+
+eel-loader: loader/loader.c
+	$(CC) $(CFLAGS) loader/loader.c -o eel-loader
 
 run: all
 	./$(TARGET) example.eel
 
 clean:
-	rm -f $(TARGET)
+	rm -f $(TARGET) eel-loader

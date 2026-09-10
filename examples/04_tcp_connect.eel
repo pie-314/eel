@@ -1,0 +1,10 @@
+// 04_tcp_connect.eel
+// Network Observability: monitor outbound IPv4 TCP connections initiated by processes
+
+probe tcp_v4_connect {
+    if (pid > 1000) {
+        print("Outbound TCP connection initiated by user process, PID: %ld", pid)
+    } else {
+        print("Outbound TCP connection by system daemon, PID: %ld", pid)
+    }
+}

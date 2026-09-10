@@ -1,0 +1,6 @@
+// 01_hello_world.eel
+// Minimal eBPF probe: intercept process execution and print a kernel log message
+
+probe sys_execve {
+    print("Hello from kernel space! Process spawned.")
+}

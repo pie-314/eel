@@ -1,0 +1,10 @@
+// 02_security_root_exec.eel
+// Security Auditing: detect when a program is executed with root privileges (uid == 0)
+
+probe sys_execve {
+    if (uid == 0) {
+        print("SECURITY ALERT: Root execution detected! PID: %ld", pid)
+    } else {
+        //print("Normal user execution. UID: %ld, PID: %ld", uid, pid)
+    }
+}

@@ -1,0 +1,6 @@
+// 03_process_killer.eel
+// Process Signal Monitoring: detect when any process calls sys_enter_kill to send signals
+
+probe sys_enter_kill {
+    print("Process termination signal fired! Killer PID: %ld, UID: %ld", pid, uid)
+}

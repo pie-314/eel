@@ -1,0 +1,9 @@
+// 08_repeat_loop.eel
+// Bounded Loops: repeat loop iteration in eBPF kernel space
+
+probe sys_execve {
+    print("Execve event intercepted for PID: %ld", pid)
+    repeat (3) {
+        print("Loop unroll step in eBPF")
+    }
+}

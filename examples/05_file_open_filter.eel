@@ -1,0 +1,8 @@
+// 05_file_open_filter.eel
+// Filesystem Observability: track file open requests with PID filtering
+
+probe sys_enter_openat {
+    if (pid > 500) {
+        print("File open requested by PID: %ld, UID: %ld", pid, uid)
+    }
+}

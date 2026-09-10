@@ -1,0 +1,7 @@
+// 06_latency_profiler.eel
+// Latency / Timestamp Profiling: record kernel timestamp using ktime(0)
+
+probe sys_enter_sync {
+    t = ktime(0)
+    print("Filesystem sync triggered at kernel timestamp (ns): %ld", t)
+}

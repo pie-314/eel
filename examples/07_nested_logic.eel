@@ -1,0 +1,14 @@
+// 07_nested_logic.eel
+// Control Flow & Arithmetic: multi-branch if/elif/else classification and arithmetic
+
+probe sys_execve {
+    p = pid
+    offset = p + 100
+    if (p > 50000) {
+        print("High PID process spawned: %ld (tag: %ld)", p, offset)
+    } elif (p > 1000) {
+        print("Standard user process spawned: %ld (tag: %ld)", p, offset)
+    } else {
+        print("System service spawned: %ld (tag: %ld)", p, offset)
+    }
+}
