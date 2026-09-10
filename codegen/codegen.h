@@ -256,4 +256,10 @@ BytecodeBuffer *compile_ast_to_bytecode(ASTNode *root, SymbolTable *table);
 void bytecode_dump(const BytecodeBuffer *buf);
 void bytecode_print_c_array(const BytecodeBuffer *buf, const char *array_name);
 
+/* File Emission Utilities (.bin, .raw, .h, .o) */
+bool bytecode_write_bin(const BytecodeBuffer *buf, const char *filepath);
+bool bytecode_write_header(const BytecodeBuffer *buf, const char *filepath, const char *array_name);
+bool bytecode_write_elf(const BytecodeBuffer *buf, const char *filepath, const char *section_name);
+const char *get_probe_name(ASTNode *root);
+
 #endif /* CODEGEN_H */
