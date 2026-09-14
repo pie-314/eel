@@ -1,4 +1,5 @@
 #define _GNU_SOURCE
+#include "loader.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -39,9 +40,13 @@ static void cleanup_probe(int sig) {
     exit(0);
 }
 
-int main(int argc, char **argv) {
-    const char *bin_path = (argc > 1) ? argv[1] : "prog.bin";
-    const char *kprobe_symbol = (argc > 2) ? argv[2] : "__x64_sys_execve";
+int run_loader(const char *bin_path, const char *kprobe_symbol) {
+    if (!bin_path) {
+        bin_path = "prog.bin";
+    }
+    if (!kprobe_symbol || strlen(kprobe_symbol) == 0) {
+        kprobe_symbol = "__x64_sys_execve";
+    }
 
     printf("========================================\n");
     printf("     EEL Standalone Kernel Loader       \n");
@@ -133,9 +138,14 @@ int main(int argc, char **argv) {
     char cmd[256];
     snprintf(cmd, sizeof(cmd), "p:kprobes/eel_execve %s\n", kprobe_symbol);
     if (write(kfd, cmd, strlen(cmd)) < 0) {
-        /* Fallback without __x64_ prefix */
-        snprintf(cmd, sizeof(cmd), "p:kprobes/eel_execve sys_execve\n");
-        write(kfd, cmd, strlen(cmd));
+        /* If registration failed, try with __x64_ prefix on x86_64 */
+        if (strncmp(kprobe_symbol, "__x64_", 6) != 0) {
+            snprintf(cmd, sizeof(cmd), "p:kprobes/eel_execve __x64_%s\n", kprobe_symbol);
+            write(kfd, cmd, strlen(cmd));
+        } else {
+            snprintf(cmd, sizeof(cmd), "p:kprobes/eel_execve sys_execve\n");
+            write(kfd, cmd, strlen(cmd));
+        }
     }
     close(kfd);
 
@@ -216,3 +226,12 @@ int main(int argc, char **argv) {
     cleanup_probe(0);
     return 0;
 }
+
+#ifdef LOADER_STANDALONE
+int main(int argc, char **argv) {
+    const char *bin_path = (argc > 1) ? argv[1] : "prog.bin";
+    const char *kprobe_symbol = (argc > 2) ? argv[2] : "__x64_sys_execve";
+    return run_loader(bin_path, kprobe_symbol);
+}
+#endif
+

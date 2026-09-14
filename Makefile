@@ -8,20 +8,18 @@ SRC = \
 	parser/parser.c \
 	semantic/semantic.c \
 	semantic/symbol_table.c \
-	codegen/codegen.c
+	codegen/codegen.c \
+	loader/loader.c
 
 TARGET = eel
 
-all: $(TARGET) eel-loader
+all: $(TARGET)
 
-$(TARGET):
+$(TARGET): $(SRC)
 	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
 
 eel-loader: loader/loader.c
-	$(CC) $(CFLAGS) loader/loader.c -o eel-loader
-
-run: all
-	./$(TARGET) example.eel
+	$(CC) $(CFLAGS) -DLOADER_STANDALONE loader/loader.c -o eel-loader
 
 clean:
 	rm -f $(TARGET) eel-loader

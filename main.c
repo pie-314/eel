@@ -2,6 +2,7 @@
 #include "lexer/lexer.h"
 #include "parser/parser.h"
 #include "semantic/semantic.h"
+#include "loader/loader.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,7 +39,10 @@ static const char *get_file_extension(const char *filename) {
 }
 
 static void print_usage(const char *prog_name) {
-  printf("Usage: %s <file.eel> [-o <output_file>]\n\n", prog_name);
+  printf("Usage: %s <file.eel> [-o <output_file>]\n", prog_name);
+  printf("       %s run <eBPF_bin_name> [probe_symbol]\n\n", prog_name);
+  printf("Commands:\n");
+  printf("  run <file>   Load eBPF binary into kernel and stream live trace events\n\n");
   printf("Options:\n");
   printf("  -o <file>    Output compiled bytecode to <file>\n");
   printf("               Supported formats (determined by extension):\n");
@@ -50,6 +54,69 @@ static void print_usage(const char *prog_name) {
 }
 
 int main(int argc, char **argv) {
+  if (argc >= 2 && strcmp(argv[1], "run") == 0) {
+    if (argc < 3) {
+      fprintf(stderr, "Error: 'run' requires an eBPF binary file.\n");
+      fprintf(stderr, "Usage: %s run <eBPF_bin_name> [probe_symbol]\n", argv[0]);
+      return 1;
+    }
+    const char *target = argv[2];
+    const char *kprobe_symbol = (argc > 3) ? argv[3] : NULL;
+
+    /* If user passed a .eel source file, compile it on the fly first */
+    const char *ext = get_file_extension(target);
+    if (strcmp(ext, "eel") == 0) {
+      char *source = read_file(target);
+      if (!source) return 1;
+
+      Lexer lexer;
+      Parser parser;
+      init_lexer(&lexer, source);
+      parser_init(&parser, &lexer);
+
+      ASTNode *root = parse_program(&parser);
+      if (!root) {
+        fprintf(stderr, "Parsing failed.\n");
+        free(source);
+        return 1;
+      }
+
+      if (!semantic_analyze(root)) {
+        fprintf(stderr, "Compilation aborted due to semantic errors.\n");
+        free(source);
+        return 1;
+      }
+
+      BytecodeBuffer *buf = compile_ast_to_bytecode(root, NULL);
+      if (!buf) {
+        fprintf(stderr, "Error: code generation failed.\n");
+        free(source);
+        return 1;
+      }
+
+      const char *tmp_bin = "/tmp/eel_temp.bin";
+      if (!bytecode_write_bin(buf, tmp_bin)) {
+        fprintf(stderr, "Error: failed to write temporary binary.\n");
+        bytecode_free(buf);
+        free(source);
+        return 1;
+      }
+
+      if (!kprobe_symbol) {
+        const char *pname = get_probe_name(root);
+        if (pname && strlen(pname) > 0) {
+          kprobe_symbol = pname;
+        }
+      }
+
+      bytecode_free(buf);
+      free(source);
+      target = tmp_bin;
+    }
+
+    return run_loader(target, kprobe_symbol);
+  }
+
   const char *input_file = NULL;
   const char *output_file = NULL;
 
