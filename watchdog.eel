@@ -1,0 +1,12 @@
+probe sys_execve {
+    int user = uid
+    int proc = pid
+
+    if (user == 0) {
+        print("ALERT: Root execution! PID: %ld", proc)
+    } elif (user < 1000) {
+        print("SYSTEM: Service daemon exec! UID: %ld, PID: %ld", user, proc)
+    } else {
+        print("USER: Normal application exec. UID: %ld, PID: %ld", user, proc)
+    }
+}

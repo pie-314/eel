@@ -1,0 +1,5 @@
+probe sys_exceve {
+    if (did ==0 ){
+    print("SECURITY ALERT: Root exec detected! PID: %ld");
+    }
+}
