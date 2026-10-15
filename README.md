@@ -4,6 +4,7 @@ EEL is a standalone domain-specific language (DSL) compiler and direct-ingestion
 
 Unlike conventional eBPF development pipelines that depend on monolithic toolchains (LLVM/Clang, Python runtimes, BCC, or libbpf), EEL compiles tracing scripts directly into verified 64-bit eBPF instruction byte arrays (`struct bpf_insn`), outputs industry-standard relocatable ELF objects, and loads programs directly into the Linux kernel via bare `sys_bpf()` system calls.
 
+
 ---
 
 ## 1. System Architecture and Design Principles
